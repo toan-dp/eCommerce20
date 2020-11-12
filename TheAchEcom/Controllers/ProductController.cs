@@ -42,10 +42,11 @@ namespace TheAchEcom.Controllers
             UserManager = userManager;
         }
 
-        public IActionResult ProductDetail(int id)
+        [Route("Product/ProductDetail/{ProductName}")] //ProductName bi SlugGenerator chuyen thanh SlugName
+        public IActionResult ProductDetail(string ProductName)
         {
             ShoppingCart cart = PageMaster.GetShoppingCart();
-            Product product = Repository.GetProductById(id);
+            Product product = Repository.GetProductById(ProductName);
 
             var model = new ProductDetailModel();
             model.Product = product;

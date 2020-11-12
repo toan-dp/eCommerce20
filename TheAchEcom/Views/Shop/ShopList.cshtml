@@ -182,12 +182,15 @@
    <div class="bottom_right_section">
 
       @* #Shop List Section *@
-      <div id="shop_list_section">
-         @foreach (var item in Model.ShopList)
-         {
-            @Html.Partial("_ShopListItem", item)
-         }
-      </div>
+       <div id="shop_list_section">
+
+           @foreach (var item in Model.ShopList)
+           {
+               <a asp-action="ProductDetail" asp-controller="Product" asp-route-slugCategory="item.SlugName"></a>
+               @Html.Partial("_ShopListItem", item)
+               <a asp-route-slugCategory="item.SlugName"></a>
+           }
+       </div>
 
    </div>
 </div>

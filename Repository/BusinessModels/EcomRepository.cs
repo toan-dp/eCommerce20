@@ -42,7 +42,7 @@ namespace Repository.BusinessModels
         //
         // Queries
         //
-        public Product GetProductById(int id)
+        public Product GetProductById(string ProductName) //ProductName bi SlugGenerator chuyen thanh SlugName
         {
             using (var ecomContext = new EcomContext())
             {
@@ -50,7 +50,7 @@ namespace Repository.BusinessModels
                     .Include(p => p.Brand)
                     .Include(p => p.Category)
                     .Include(p => p.ProductActivityTracking)
-                    .FirstOrDefault(p => p.Id == id);
+                    .SingleOrDefault(p => p.SlugName == ProductName);
             }
         }
         public IEnumerable<Product> GetProducstByBrand(int brandId)

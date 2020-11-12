@@ -13,7 +13,7 @@ namespace Repository.DomainModels
         public int UnitPrice { get; set; }
         public DateTime CreatedDate { get; set; }
         public string ImageUrl { get; set; }
-        public string FlugName { get; set; }
+        public string SlugName { get; set; }
 
         //[ForeignKey("MainImageId")]
         //public int ImageId { get; set; }

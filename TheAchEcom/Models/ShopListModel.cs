@@ -12,5 +12,6 @@ namespace TheAchEcom.Models
         public IEnumerable<ShopListItem> ShopList { get; set; }
         public IEnumerable<Brand> Brands { get; set; }
         public int TotalPage { get; set; }
+        public string Flugname { get; set; }
     }
 }

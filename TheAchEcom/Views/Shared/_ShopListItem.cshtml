@@ -8,20 +8,20 @@
    <div class="product_control">
       <img class="product_img" src="@product.ImageUrl">
       <div class="controls">
+          @*<a asp-action="ProductDetail" asp-controller="Product" asp-route-slugCategory="item.SlugName"></a>*@
+          <button class="control_item clickable"
+                  onclick="OnShopListControlClick('cart', this, @product.Id)"
+                  added-to-cart="@( isAddedToCart ? "true": "false" )">
+              <span class="icon">
+                  <img class="small_icon" src="~/icons/add-to-basket.svg">
+              </span>
+              <span class="text"> @( isAddedToCart ? "Remove From Cart" : "Add To Cart" ) </span>
+          </button>
 
-         <button class="control_item clickable" 
-                 onclick="OnShopListControlClick('cart', this, @product.Id)"
-                 added-to-cart="@( isAddedToCart ? "true": "false" )">
-            <span class="icon">
-               <img class="small_icon" src="~/icons/add-to-basket.svg">
-            </span>
-            <span class="text"> @( isAddedToCart ? "Remove From Cart" : "Add To Cart" ) </span>
-         </button>
-      
       </div>
    </div>
    <span class="product_price">@product.UnitPrice usd </span>
-   <a class="product_name" href="~/Product/ProductDetail?id=@product.Id">
+   <a class="product_name" href="~/Product/ProductDetail/@SlugGenerator.SlugGenerator.GenerateSlug(product.ProductName)">
       @product.ProductName
    </a>
 </div>

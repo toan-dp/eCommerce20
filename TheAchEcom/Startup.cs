@@ -67,6 +67,22 @@ namespace TheAchEcom
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Shop}/{action=ShopList}");
+                // pattern: "{controller=Product}/{action=ProductDetail}/{id=2}");
+
+                endpoints.MapControllerRoute(
+                        name: "Product",
+                        pattern: "{controller=Product}/{action=ProductDetail}/{id=UrlParameter.Optional}");//=UrlParameter.Optional
+
+                endpoints.MapControllerRoute(
+                    name: "cart",
+                    pattern: "{controller=ShoppingCart}/{action=CartDetail}");
+
+                endpoints.MapControllerRoute(
+                    name: "cart",
+                    pattern: "{controller=SoppingCart}/{action=MakeOrder}");
+                
+                
+
             });
         }
     }
