@@ -1,0 +1,82 @@
+﻿
+
+<div class="shop_list_pagination">
+   <span class="pagination_item fixed_icon_btn" onclick="PAGINATION.loadPrevPages()">
+      <img class="tiny_icon" src="~/icons/back.svg" alt="">
+   </span>
+
+   <fieldset class="flex_center" id="pagination">
+      @{
+          int pageOffset = 5,
+              currentOffset = (int)Math.Ceiling((double)Model.CurrentPage / (double)pageOffset) - 1;
+          currentOffset = (currentOffset < 0) ? 0 : currentOffset;
+
+          int start = (currentOffset * pageOffset) + 1;
+          for (int i = start; i <= start + 4; ++i)
+          {
+             string isActive = (Model.CurrentPage == i) ? "active" : "";
+            <div class="pagination_item clickable @isActive">
+               <span class="text_radio_btn">
+                  <span class="text" submit_on_check="#pagination_@i"> @i </span>
+                  <input id="pagination_@i" extend_form="#shoplist_form"
+                         type="radio" name="CurrentPage" value="@i">
+               </span>
+            </div>
+         }
+      }
+
+   </fieldset>
+
+   <span class="pagination_item fixed_icon_btn" onclick="PAGINATION.loadNextPages()">
+      <img class="tiny_icon" src="~/icons/back.svg" style="transform: rotate(180deg);">
+   </span>
+</div>
+
+<script>
+   const PAGINATION = {
+      currentPage: @Model.CurrentPage,
+      totalPage: @Model.TotalPage,
+      pageOffset: 5,
+      start: null,
+      currentOffset: null,
+      maxOffset: null,
+      init: function () {
+         this.currentOffset = Math.ceil(this.currentPage / this.pageOffset) - 1;
+         this.currentOffset = (this.currentOffset < 0) ? 0 : this.currentOffset; 
+         this.maxOffset = Math.floor(this.totalPage / this.pageOffset) - 1;
+         this.start = this.currentOffset * this.pageOffset + 1;
+      },
+      updatePagination: function () {
+         var str = "";
+         for (var i = this.start; i <= this.start + 4; i++) {
+            var isActive = (this.currentPage == i) ? "active" : "";
+            str += `<div class="pagination_item clickable ${isActive}">
+               <div class="text_radio_btn">
+                  <span class="text" submit_on_check="#pagination_${i}"> ${i} </span>
+                  <input id="pagination_${i}" extend_form="#shoplist_form"
+                         type="radio" name="CurrentPage" value="${i}">
+               </div>
+            </div>`;
+         }
+         $('fieldset#pagination').html(str);
+         SHOPLIST_FORM.ExtendForm();
+         SHOPLIST_FORM.AsignEvent();
+      },
+      loadPrevPages: function () {
+         this.currentOffset -= 1;
+         if (this.currentOffset < 0)
+            this.currentOffset = 0;
+         this.start = this.currentOffset * this.pageOffset + 1;
+         this.updatePagination();
+      },
+
+      loadNextPages: function () {
+         this.currentOffset += 1;
+         if (this.currentOffset >= this.maxOffset)
+            this.currentOffset = this.maxOffset;
+         this.start = this.currentOffset * this.pageOffset + 1;
+         this.updatePagination();
+      }
+   }
+   PAGINATION.init();
+</script>

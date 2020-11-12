@@ -1,0 +1,292 @@
+﻿@model TheAchEcom.Controllers.ProductDetailModel
+@using Repository.BusinessModels.ShopList
+@using Repository.DomainModels
+
+@{
+   var repository = new Repository.BusinessModels.EcomRepository();
+   var options = (ShopListOptions)ViewBag.Options;
+}
+
+<!-- #BreadCrumb Section -->
+<div class="top_section">
+   <!-- breadcum -->
+   <div id="breadcrum_section">
+      <h3 class="title"> Product Detail </h3>
+
+      <div class="breadcrum">
+         @{
+            // Trace "reverse" categories to build the breadcrumb
+            var categories = new List<Category>();
+            var node = repository.GetCategoryById(Model.Product.CategoryId);
+            while (node != null)
+            {
+               categories.Add(node);
+               node = node.ParentCategory;
+            }
+
+            <div class="breadcrum">
+               @for (int i = categories.Count() - 1; i >= 0; --i)
+               {
+                  <a class="breadcrum_item"
+                     href="~/Shop/ShopList?CategoryId=@categories[i].Id">
+                     @categories[i].CategoryName
+                  </a>
+
+                  if (i > 0)
+                  {
+                     <span class="breadcrum_item"> / </span>
+                  }
+               }
+            </div>
+         }
+      </div>
+   </div>
+</div>
+
+<div class="line_separator" style="margin-top: 4rem;"></div>
+
+
+<!-- #Product Detail Section -->
+@{
+   var product = Model.Product;
+   var productActivity = Model.Product.ProductActivityTracking;
+   var brand = Model.Product.Brand; // repository.GetBrandById(Model.Product.BrandId);
+   var isAddedToCart = Model.IsAddedToCart;
+}
+
+<div class="product_detail_section">
+   <div class="product_images">
+      <div class="images">
+         <img class="image" src="" alt="">
+         <img class="image" src="" alt="">
+         <img class="image" src="" alt="">
+      </div>
+      <img class="primary_image" src="" alt="">
+   </div>
+
+   <div class="product_detail">
+      <div class="name"> @product.ProductName </div>
+      <div class="brand ">
+         <span class="faded_span"> From brand:</span>
+         <a class="faded_link no_deco"
+            href="/Shop/ShopList?BrandId=@brand.Id">
+            @brand.BrandName
+         </a>
+      </div>
+
+      <div class="rating">
+         <span class="faded_span"> Rating overal:</span>
+         <div class="stars flex_center">
+            @for (int i = 1, j = productActivity.RatingAvg; i <= 5; i++)
+            {
+               var amount = j - i;
+               if (amount >= 0)
+               {
+                  <img class="tiny_icon" src="~/icons/star.svg">
+               }
+               else if (0 < amount && amount < 1)
+               {
+                  <img class="tiny_icon" src="~/icons/star-half-empty.svg" alt="">
+
+               }
+               else
+               {
+                  <img class="tiny_icon" src="~/icons/star-empty.svg" alt="">
+               }
+            }
+         </div>
+         <a class="faded_link"> @productActivity.RatingAvg / 5 </a>
+      </div>
+
+      <div class="price"> @product.UnitPrice usd </div>
+
+      <div class="add_to_cart clickable"
+           added-to-cart="@( isAddedToCart ? "true" : "false")"
+           onclick="OnProductDetailControlClick('cart', this, @product.Id)">
+         @( isAddedToCart ? "Remove From Cart" : "Add To Cart")
+      </div>
+
+      <div class="line_separator"></div>
+      <div class="description">
+         <span class="faded_span">
+            More details
+         </span>
+         <p class="faded_text content">
+            @product.Description
+         </p>
+      </div>
+
+   </div>
+
+</div>
+
+<h3 class="title"> Reviews </h3>
+<div class="line_separator"></div>
+
+<div class="product_review">
+   <div class="review_summary">
+      <div class="flex_center">
+         <span class="bold_span"> Avarage: </span>
+
+         <div class="rating flex_center">
+            @for (int i = 1, j = productActivity.RatingAvg; i <= 5; i++)
+            {
+               var amount = j - i;
+               if (amount >= 0)
+               {
+                  <img class="tiny_icon" src="~/icons/star.svg">
+               }
+               else if (0 < amount && amount < 1)
+               {
+                  <img class="tiny_icon" src="~/icons/star-half-empty.svg" alt="">
+
+               }
+               else
+               {
+                  <img class="tiny_icon" src="~/icons/star-empty.svg" alt="">
+               }
+            }
+         </div>
+
+         <span class="faded_span"> @productActivity.RatingAvg / 5 </span>
+      </div>
+
+      <div class="flex_center">
+         <span class="bold_span"> Total reviews: </span>
+         <span class="faded_span"> @productActivity.ReviewCount </span>
+      </div>
+
+      <div class="rating_summary">
+         <span> 5 stars </span>
+
+         <div class="flex_center rating_bar">
+            <div class="left" style="width:30%"></div>
+            <div class="right" style="flex:1"></div>
+         </div>
+         <span> 35% </span>
+      </div>
+
+      <div class="rating_summary">
+         <span> 4 stars </span>
+
+         <div class="flex_center rating_bar">
+            <div class="left" style="width:30%"></div>
+            <div class="right" style="flex:1"></div>
+         </div>
+         <span> 20% </span>
+      </div>
+
+      <div class="rating_summary">
+         <span> 3 stars </span>
+
+         <div class="flex_center rating_bar">
+            <div class="left" style="width:30%"></div>
+            <div class="right" style="flex:1"></div>
+         </div>
+         <span> 30% </span>
+      </div>
+
+      <div class="rating_summary">
+         <span> 2 stars </span>
+
+         <div class="flex_center rating_bar">
+            <div class="left" style="width:30%"></div>
+            <div class="right" style="flex:1"></div>
+         </div>
+         <span> 5% </span>
+      </div>
+
+      <div class="rating_summary">
+         <span> 1 stars </span>
+
+         <div class="flex_center rating_bar">
+            <div class="left" style="width:30%"></div>
+            <div class="right" style="flex:1"></div>
+         </div>
+         <span> 10% </span>
+      </div>
+
+   </div>
+
+   <div class="reviews">
+
+      <div class="review">
+         <span class="bold_span"> Most beautiful dress ever</span>
+         <div class="rating flex_center">
+            <span class="faded_span"> Rating: </span>
+            <img class="tiny_icon" src="~/icons/star.svg" alt="">
+            <img class="tiny_icon" src="~/icons/star.svg" alt="">
+            <img class="tiny_icon" src="~/icons/star-half-empty.svg" alt="">
+            <img class="tiny_icon" src="~/icons/star-empty.svg" alt="">
+            <img class="tiny_icon" src="~/icons/star-empty.svg" alt="">
+         </div>
+
+         <p class="faded_text">
+            Lorem ipsum dolor sit amet consectetur, adipisicing elit. Quod, quis. Dolorum doloremque voluptatibus
+            ratione quia eveniet eos aliquid numquam qui nam sint delectus dicta hic nostrum corrupti iure fugiat, ea
+            consequatur! <br> At 20:30pm Arpil 4, 2020 - By Huu Nguyen
+         </p>
+
+      </div>
+      <div class="line_separator"></div>
+
+      <div class="add_review_section">
+         <form action="">
+            <span class="bold_span"> Your rating: </span>
+
+            <div class="flex_center">
+               @for (int i = 1; i <= 5; i++)
+               {
+                  <div class="flex_col_center ml-1 clickable">
+                     <img class="medium_icon" src="~/icons/star-empty.svg" alt="">
+                     <div> @i </div>
+                     <input type="text" style="display: none;">
+                  </div>
+               }
+            </div>
+
+            <span class="bold_span"> What do you think?</span>
+
+            <input type="text" class="primary_input" placeholder="Title ... ">
+            <span class="bold_span"> More detail: </span>
+            <textarea class="primary_input" rows="5" placeholder="Your thought on this product..."></textarea>
+
+            <button type="submit" class="small_btn clickable"> Add Comment
+         </form>
+      </div>
+   </div>
+</div>
+
+<h3 class="title"> More @brand.BrandName's products </h3>
+<div class="line_separator"></div>
+
+<div class="center" style="padding: 2rem 0rem">
+   <div id="related_product_section">
+
+      @foreach (var item in Model.BrandAlso)
+      {
+         @Html.Partial("_ShopListItem", item)
+      }
+
+   </div>
+</div>
+
+<h3 class="title"> Also this category  </h3>
+<div class="line_separator"></div>
+
+<div class="center" style="padding: 2rem 0rem">
+   <div id="related_product_section">
+
+      @foreach (var item in Model.CategoryAlso)
+      {
+         @Html.Partial("_ShopListItem", item)
+      }
+
+   </div>
+
+
+   @section ViewScripts {
+      <script src="~/js/shop-list-item.js"></script>
+      <script src="~/js/cart-manager.js"></script>
+      <script src="~/js/product_detail.js"></script>
+   }

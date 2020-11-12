@@ -1,0 +1,136 @@
+﻿@model CartDetailModel
+@using Repository.DomainModels
+
+<div class="top_section">
+   <!-- breadcum -->
+   <div id="breadcrum_section">
+      <h3 class="title"> Shopping Cart </h3>
+   </div>
+</div>
+
+<div class="line_separator"></div>
+
+<!-- #Cart Detail Section -->
+<div class="shopping_cart_detail">
+   <div class="cart_detail">
+      <!-- Cart Items -->
+      <div class="cart">
+
+         <div class="cart_item">
+            <div class="item_info">
+               <span class="faded_span"> Product </span>
+            </div>
+            <div class="item_controls">
+               <span class="faded_span"> Quantity </span>
+            </div>
+            <div class="item_summary">
+               <span class="faded_span"> Total </span>
+            </div>
+         </div>
+
+         @if (Model.CartItems.Count() == 0)
+         {
+            <h3 class="heading"> Cart is empty! Let's shopping!</h3>
+         }
+         else foreach (var item in Model.CartItems)
+         {
+            <div class="cart_item" id="cart_item_@item.Id">
+               <div class="item_info">
+                  <img class="product_img">
+                  <div class="product_detail">
+                     <a href="/Product/ProductDetail?id=@item.Product.Id">
+                        <span class="bold_span">@item.Product.ProductName </span>
+                     </a>
+
+                     <a class="faded_link none_deco"
+                        href="~/shop/shoplist?brandid=@item.Product.BrandId">
+                        @item.Product.Brand.BrandName
+                     </a>
+
+                     <span class="faded_span"> @item.Product.UnitPrice usd </span>
+                  </div>
+               </div>
+               <div class="item_controls">
+                  <span class="control clickable" 
+                        onclick="CART_DETAIL_CONTROLS.cart.decrease('@item.Id', @item.Product.Id)">
+                     -
+                  </span>
+                  <span class="bold_span cart_item_quantity"
+                        quantity="@item.Quantity"> 
+                     @item.Quantity </span>
+                  <span class="control clickable"
+                        onclick="CART_DETAIL_CONTROLS.cart.increase('@item.Id', @item.Product.Id)">
+                     +
+                  </span>
+
+               </div>
+               <div class="item_summary">
+                  <span class="bold_span cart_item_total"
+                        unit-price="@item.Product.UnitPrice"> @(item.Quantity * item.Product.UnitPrice) usd </span>
+               </div>
+
+               <div class="item_remove">
+                  <span class="clickable"
+                        onclick="CART_DETAIL_CONTROLS.cart.remove('@item.Id', @item.Product.Id)">
+                     <img src="~/icons/cancel.svg" class="small_icon">
+                  </span>
+               </div>
+            </div>
+         }
+
+      </div>
+      <div class="cart_info">
+         <div class="info_item">
+            <span class="faded_span">
+               Total quantity:
+            </span>
+            <span id="cart_total_quantity"
+                  class="bold_span"> @Model.CartItems.Sum(p => p.Quantity) </span>
+         </div>
+         <div class="info_item">
+            <span class="faded_span">
+               Delivery cost:
+            </span>
+            <span class="bold_span"> 499 usd </span>
+         </div>
+         <div class="info_item">
+            <span class="faded_span">
+               Estimated delivery date:
+            </span>
+            <span class="bold_span">
+               April 4, 2020
+            </span>
+         </div>
+      </div>
+   </div>
+
+   <!-- Cart Control -->
+   <div class="cart_controls">
+      <!-- Cart SUmmary -->
+      <div class="cart_summary">
+         <h3 class="small_heading">Summary</h3>
+         <div class="flex_center">
+            <span class="faded_span"> Items:</span>
+            <span id="cart_total_item"
+                  class="bold_span"> @Model.CartItems.Count() </span>
+         </div>
+
+         <div class="flex_center">
+            <span class="faded_span">Total: </span>
+            <span id="cart_total_price"
+                  class="bold_span"> @Model.CartTotalPrice usd </span>
+         </div>
+      </div>
+
+      <a href="/ShoppingCart/MakeOrder" class="cta_btn flex_center clickable">
+         <span> Make Order </span>
+         <img src="~/icons/next.svg" class="small_icon">
+      </a>
+   </div>
+</div>
+
+
+@section ViewScripts {
+   <script src="~/js/cart-manager.js"></script>
+   <script src="~/js/cart-detail.js"></script>
+}

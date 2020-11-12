@@ -1,0 +1,204 @@
+﻿@model TheAchEcom.Models.ShopListModel
+@using Repository.BusinessModels.ShopList
+@using Repository.DomainModels
+
+@{
+   var repository = new Repository.BusinessModels.EcomRepository();
+   var options = (ShopListOptions)ViewBag.Options;
+}
+
+
+<div class="top_section">
+   @* #BreadCrumb Section *@
+   <div id="breadcrum_section">
+      @if (options.CategoryId == null)
+      {
+         <h3 class="title"> Catalog </h3>
+      }
+      else  // Trace "reverse" categories to build the breadcrumb
+      {
+         var categories = new List<Category>();
+         var currentCategory = repository.GetCategoryById(options.CategoryId);
+         var node = currentCategory;
+         while (node != null)
+         {
+            categories.Add(node);
+            node = node.ParentCategory;
+         }
+
+         <h3 class="title"> @currentCategory.CategoryName </h3>
+         <div class="breadcrum">
+            @for (int i = categories.Count() - 1; i >= 0; --i)
+            {
+               <a class="breadcrum_item"
+                  href="~/Shop/ShopList?CategoryId=@categories[i].Id">
+                  @categories[i].CategoryName
+               </a>
+
+               if (i > 0)
+               {
+                  <span class="breadcrum_item"> / </span>
+               }
+            }
+         </div>
+      }
+   </div>
+
+   @* #Sorting Section *@
+   <div id="sorting_section">
+      <span class="label"> Show </span>
+      <div class="sort clickable" onclick="ToggleActive(this)">
+         <div class="sort_control flex_center">
+            @{ var sortedBy = options.SortBy ?? SortByOptions.Newest; }
+            <span class="selected"> @sortedBy </span>
+            <input id="sortby_@sortedBy" extend_form="#shoplist_form"
+                   type="radio" name="SortBy" value="@sortedBy" checked style="display:none">
+            <span class="fixed_icon_btn">
+               <img class="tiny_icon" src="~/icons/back.svg" style="transform: rotate(270deg);">
+            </span>
+         </div>
+
+         @{ var sortBy = Enum.GetValues(typeof(SortByOptions)).Cast<SortByOptions>(); }
+         <fieldset class="sort_options">
+            @foreach (var option in sortBy)
+            {
+               if (option == sortedBy)
+                  continue;
+
+               <span class="option clickable" submit_on_check="#sortby_@option"> @option </span>
+               <input extend_form="#shoplist_form" id="sortby_@option"
+                      type="radio" name="SortBy" value="@option" style="display:none">
+            }
+         </fieldset>
+      </div>
+
+      <span class="label"> Name </span>
+      <div class="sort clickable" onclick="ToggleActive(this)">
+         <div class="sort_control flex_center">
+            @{ var nameSort = options.AlphabetSort ?? AlphabetSortOptions.Ascending; }
+            <span class="selected"> @nameSort </span>
+            <input id="namesort_@nameSort" extend_form="#shoplist_form"
+                   type="radio" name="AlphabetSort" value="@nameSort" checked style="display:none">
+            <span class="fixed_icon_btn">
+               <img class="tiny_icon" src="~/icons/back.svg" style="transform: rotate(270deg);">
+            </span>
+         </div>
+
+         @{ var names = Enum.GetValues(typeof(AlphabetSortOptions)).Cast<AlphabetSortOptions>(); }
+         <fieldset class="sort_options">
+            @foreach (var option in names)
+            {
+               if (option == nameSort)
+                  continue;
+
+               <span class="option clickable" submit_on_check="#namesort_@option"> @option </span>
+               <input extend_form="#shoplist_form" id="namesort_@option"
+                      type="radio" name="AlphabetSort" value="@option" style="display:none">
+            }
+         </fieldset>
+      </div>
+
+      <span class="label"> Price </span>
+      <div class="sort clickable" onclick="ToggleActive(this)">
+         <div class="sort_control flex_center">
+            @{ var priceSort = options.PriceSort ?? PriceSortOptions.LowPrice; }
+            <span class="selected"> @priceSort </span>
+            <input id="pricesort_@priceSort" extend_form="#shoplist_form"
+                   type="radio" name="PriceSort" value="@priceSort" checked style="display:none">
+            <span class="fixed_icon_btn">
+               <img class="tiny_icon" src="~/icons/back.svg" style="transform: rotate(270deg);">
+            </span>
+         </div>
+
+         @{ var prices = Enum.GetValues(typeof(PriceSortOptions)).Cast<PriceSortOptions>(); }
+         <fieldset class="sort_options">
+            @foreach (var option in prices)
+            {
+               if (option == priceSort)
+                  continue;
+
+               <span class="option clickable" submit_on_check="#pricesort_@option"> @option </span>
+               <input extend_form="#shoplist_form" id="pricesort_@option"
+                      type="radio" name="PriceSort" value="@option" style="display:none">
+            }
+         </fieldset>
+      </div>
+   </div>
+
+   @* #Pagination Section *@
+
+   @Html.Partial("_ShopListPagination", new { TotalPage = Model.TotalPage, CurrentPage = options.CurrentPage, PageSize = options.PageSize })
+
+</div>
+
+
+<div class="line_separator"></div>
+
+<div class="bottom_section">
+   <div class="bottom_left_section">
+
+      @* #Filter Section *@
+      <fieldset id="filter_section">
+         <label class="filter_title"> Price </label>
+         @{ var pricelimits = ProductPriceLimit.GetAllPriceLimits(); }
+         @foreach (var item in pricelimits)
+         {
+            var isActive = (item.Value.MinPrice == options.MinPrice)
+                           && (item.Value.MaxPrice == options.MaxPrice)
+                           ? "active" : "";
+
+            var isChecked = (item.Value.MinPrice == options.MinPrice)
+                           && (item.Value.MaxPrice == options.MaxPrice)
+                           ? "checked" : "";
+
+            var inputId = "pricelimit_" + item.Value.MinPrice + "_" + item.Value.MaxPrice;
+            <span class="filter_item @isActive">
+               <span class="text_radio_btn">
+                  <span class="text" submit_on_check="#minprice_@inputId,#maxprice_@inputId"> @item.Key </span>
+                  <input id="minprice_@inputId" extend_form="#shoplist_form"
+                         type="radio" name="MinPrice" value="@item.Value.MinPrice" @isChecked>
+                  <input id="maxprice_@inputId" extend_form="#shoplist_form"
+                         type="radio" name="MaxPrice" value="@item.Value.MaxPrice" @isChecked>
+               </span>
+            </span>
+         }
+
+         <label class="filter_title"> Brand </label>
+         @foreach (var item in Model.Brands)
+         {
+            var isActive = options.BrandId == item.Id ? "active" : "";
+            var isChecked = options.BrandId == item.Id ? "checked" : "";
+            <span class="filter_item @(isActive)">
+               <span class="text_radio_btn">
+                  <span class="text" submit_on_check="#brand_@item.Id"> @item.BrandName </span>
+                  <input id="brand_@item.Id" extend_form="#shoplist_form"
+                         type="radio" name="BrandId" value="@item.Id" @(isChecked)>
+               </span>
+            </span>
+         }
+      </fieldset>
+   </div>
+
+   <div class="bottom_right_section">
+
+      @* #Shop List Section *@
+      <div id="shop_list_section">
+         @foreach (var item in Model.ShopList)
+         {
+            @Html.Partial("_ShopListItem", item)
+         }
+      </div>
+
+   </div>
+</div>
+
+<form id="shoplist_form" action="~/Shop/ShopList" method="get"
+      style="display:none">
+
+   <input type="text" name="CategoryId" value="@options.CategoryId" />
+</form>
+
+@section ViewScripts {
+   <script src="~/js/shop-list-item.js"></script>
+   <script src="~/js/cart-manager.js"></script>
+}

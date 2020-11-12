@@ -1,0 +1,127 @@
+﻿@using Repository.DomainModels
+@using Repository.BusinessModels
+@using Repository.BusinessModels.ShopList;
+@inject Microsoft.AspNetCore.Identity.SignInManager<Customer> signInManager;
+@inject Microsoft.AspNetCore.Identity.UserManager<Customer> userManager;
+@{
+   var repository = new EcomRepository();
+   var options = (ShopListOptions)ViewBag.Options ?? new ShopListOptions();
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>Another Online Store</title>
+   <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500&display=swap" rel="stylesheet">
+   <link rel="stylesheet" href="~/css/site.css">
+   <link rel="stylesheet" href="~/css/cart-detail.css">
+   <link rel="stylesheet" href="~/css/product-detail-style.css">
+   <link rel="stylesheet" href="~/css/shop-list.css">
+</head>
+<body>
+   <!-- #Header  -->
+   <div id="header_section">
+      <a id="app_logo" class="no_deco" href="/" style="position:relative">
+         <div style="font-size: 1.2rem;font-weight:500;
+        padding: 2.5rem 1rem 1rem 1rem;
+        background-color: white;
+      ">
+            THE.ACH
+         </div>
+      </a>
+
+      <div class="nav_bar">
+         @{
+            IEnumerable<Category> parentCategories = repository.GetParentCategories();
+            var currentCategory = repository.GetCategoryById(options.CategoryId);
+            var currentCategoryId = (currentCategory != null) ?
+                (int?)currentCategory.Id : null;
+         }
+         @foreach (var item in parentCategories)
+         {
+            var isActive = (currentCategoryId == item.Id) ? "active" : "";
+            <a class="nav_item clickable @isActive hover_active" href="~/Shop/ShopList?CategoryId=@item.Id">
+               @item.CategoryName
+            </a>
+         }
+      </div>
+
+      <div class="controls">
+         <div id="app_search">
+            <span class="search_trigger" onclick="ToggleInput(this)">
+               <img class="small_icon" src="~/icons/search.svg">
+               <input id="search_input" extend_form="#shoplist_form" submit_on_keypress submit_self_only="true"
+                      type="text" name="SearchText" value="@( ViewBag.SearchText ?? "" )" placeholder="Search for...">
+            </span>
+         </div>
+
+         <a id="shop_cart" href="~/ShoppingCart/CartDetail">
+            <img class="medium_icon" src="~/icons/shopping-bag.svg">
+            <span class="noti_count" id="cart_counter">
+               @( ViewBag.CountCartItems )
+            </span>
+         </a>
+
+         <div id="user_profile">
+            @if (signInManager.IsSignedIn(User))
+            {
+               string customerId = userManager.GetUserId(User);
+               Customer customer = userManager.Users.FirstOrDefault(p => p.Id == customerId);
+
+               <div class="control clickable flex_center" onclick="toggleActive(this)">
+                  <span class="user_image_clip">
+                     <img class="user_image" src="~/icons/default-user.jpg">
+                  </span>
+                  <div class="flex_center">
+                     <b> @customer.UserName </b>
+                     <div class="log_out">
+                        <a href="/Customer/LogOut" class="text">Log Out</a>
+                     </div>
+                  </div>
+               </div>
+            }
+            else
+            {
+               <div class="control clickable">
+                  <span class="icon">
+                     <img class="medium_icon" src="~/icons/user.svg">
+                  </span>
+                  <a href="/Customer/Login" class="text"> Sign In </a>
+               </div>
+            }
+         </div>
+      </div>
+   </div>
+
+   <!-- #Body -->
+   <div id="main_section">
+      @RenderBody()
+   </div>
+
+   <script src="~/lib/jquery/dist/jquery.min.js"></script>
+   <script src="~/js/ExtendForm.js"></script>
+   <script>
+      const SHOPLIST_FORM = ExtendForm("#shoplist_form");
+
+      function ToggleActive(element) {
+         $(element).toggleClass("active");
+      }
+
+      function ToggleInput(searchTrigger) {
+         var searchInput = $(searchTrigger).find('input').first();
+         if ($(searchTrigger).hasClass('active') == false) {
+            $(searchInput).on('focusout', () => {
+               $(searchTrigger).removeClass('active');
+            });
+            $(searchTrigger).addClass('active');
+            $(searchInput).focus();
+         }
+      }
+   </script>
+
+   @RenderSection("ViewScripts", false)
+</body>
+
+</html>

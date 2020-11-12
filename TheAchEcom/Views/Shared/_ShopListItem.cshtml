@@ -1,0 +1,27 @@
+﻿@model Repository.BusinessModels.ShopList.ShopListItem
+
+@{ 
+    var product = Model.Product;
+    bool isAddedToCart = Model.IsAddedToCart;
+}
+<div class="shop_list_item">
+   <div class="product_control">
+      <img class="product_img" src="@product.ImageUrl">
+      <div class="controls">
+
+         <button class="control_item clickable" 
+                 onclick="OnShopListControlClick('cart', this, @product.Id)"
+                 added-to-cart="@( isAddedToCart ? "true": "false" )">
+            <span class="icon">
+               <img class="small_icon" src="~/icons/add-to-basket.svg">
+            </span>
+            <span class="text"> @( isAddedToCart ? "Remove From Cart" : "Add To Cart" ) </span>
+         </button>
+      
+      </div>
+   </div>
+   <span class="product_price">@product.UnitPrice usd </span>
+   <a class="product_name" href="~/Product/ProductDetail?id=@product.Id">
+      @product.ProductName
+   </a>
+</div>
